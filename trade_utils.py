@@ -44,13 +44,12 @@ def calculate_total_pnl(df):
 
 def write_to_trade_book(api, trade_csv="bot/trade_book.csv"):
     """Fetch and update trade book records from the API."""
-    cols = ['trantype', 'tsym', 'qty', 'fillshares', 'flqty', 'flprc', 'avgprc', 'exch_tm', 'remarks', 'exchordid']
-    dtype_map = {col: str for col in cols}
-
+    cols = ['trantype', 'tsym', 'order_type', 'qty', 'fillshares', 'flqty', 'flprc', 'avgprc', 'exch_tm', 'remarks', 'exchordid']
     df_existing = pd.read_csv(trade_csv, dtype=str) if os.path.exists(trade_csv) else pd.DataFrame(columns=cols)
 
     new_rec_df = pd.DataFrame(api.get_trade_book())
     if not new_rec_df.empty:
+        new_rec_df['order_type'] = new_rec_df['tsym'].str.extract(r'([PC])\d+$')[0].map({'P': 'PE', 'C': 'CE'})
         new_rec_df = new_rec_df[cols].fillna("").astype(str)
         df_existing = df_existing.fillna("").astype(str)
 
@@ -512,3 +511,21 @@ def get_strikes(upstox_opt_api, finvasia_api, instrument, expiry,trade_qty,upsto
         trade_details['INDIA_VIX_RSI']=-1
         trade_details['ATM_IV']=-1
     return trade_details
+
+def check_recent_pe_ce(df, time_window_minutes=120):
+    # Ensure exch_tm is datetime
+    df = df.copy()
+    df['exch_tm'] = pd.to_datetime(df['exch_tm'], format='%d-%m-%Y %H:%M:%S')
+
+    # Time window filtering
+    now = datetime.now()
+    start_time = now - timedelta(minutes=time_window_minutes)
+    recent_df = df[df['exch_tm'] >= start_time]
+    # Filter for 'STOP_LOSS' in remarks
+    recent_df = recent_df[recent_df['remarks'].str.upper() == 'STOP_LOSS']
+
+    # Check presence
+    has_pe = not recent_df[recent_df['order_type'] == 'PE'].empty
+    has_ce = not recent_df[recent_df['order_type'] == 'CE'].empty
+
+    return has_pe, has_ce

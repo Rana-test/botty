@@ -1,3 +1,4 @@
 creds.yml
 .env
 __pycache__/
+test.ipynb

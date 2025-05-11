@@ -13,6 +13,7 @@ from trade_utils import (
     exit_order,
     place_order,
     get_strikes,
+    check_recent_pe_ce,
 )
 from indicators import calculate_supertrend
 import pandas as pd
@@ -124,6 +125,16 @@ def run_hourly_trading_strategy(
         entry_confirm+=entry_signal
     else:
         entry_confirm=0
+
+    # Do not place order if recent PE/CE stop loss order exists in past 3 hours to avoid whipsaw
+    has_pe, has_ce = check_recent_pe_ce(trade_book_df, time_window_minutes=180)
+    if has_pe and entry_signal == -1:
+        entry_confirm = 0
+        logger.info("Recent PE order exists. Skipping entry.")
+    elif has_ce and entry_signal == 1:
+        entry_confirm = 0
+        logger.info("Recent CE order exists. Skipping entry.")
+
     #Debugging
     # entry_confirm=3
     if abs(entry_confirm) > 2:
