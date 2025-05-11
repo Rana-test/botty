@@ -44,7 +44,10 @@ def main():
     exit_confirm = session_vars_df[session_vars_df['session_var'] == 'exit_confirm']['value'].iloc[0]
     entry_confirm = session_vars_df[session_vars_df['session_var'] == 'entry_confirm']['value'].iloc[0]
     logging.info(f"Loaded session variables: {session_vars_df}")
-
+    # Wait till 9:15
+    while is_within_timeframe("08:30", "09:15"):
+        logging.info("Waiting for market to open...")
+        sleep_time.sleep(60)
     # Start Monitoring
     counter=0
     while is_within_timeframe(session.get('start_time'), session.get('end_time')):
