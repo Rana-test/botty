@@ -96,7 +96,7 @@ def main():
     write_to_trade_book(finvasia_api)
     finvasia_api.logout()
 
-main()
+# main()
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

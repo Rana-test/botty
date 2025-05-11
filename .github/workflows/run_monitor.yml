@@ -1,0 +1,57 @@
+name: Monitor Positions
+on:
+  workflow_dispatch:
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.x
+        cache: 'pip' # caching pip dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Install all dependencies from requirements.txt
+    
+    - name: Run Python script
+      env:
+        API_KEY: ${{ secrets.TEST_API_KEY }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}  # Email user from GitHub Secrets
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}  # Email password from GitHub Secrets
+        EMAIL_TO: ${{ secrets.EMAIL_TO }}      # Email recipient from GitHub Secrets
+        TOKEN: ${{ secrets.TOKEN }}      # Email recipient from GitHub Secrets
+        userid: ${{ secrets.userid }}
+        password: ${{ secrets.password }}
+        vendor_code: ${{ secrets.vendor_code }}
+        api_secret: ${{ secrets.api_secret }}
+        imei: ${{ secrets.imei }}
+        UPSTOX_API_KEY: ${{ secrets.UPSTOX_API_KEY }}
+        UPSTOX_API_SECRET: ${{ secrets.UPSTOX_API_SECRET }}
+        UPSTOX_CLIENT_ID: ${{ secrets.UPSTOX_CLIENT_ID }}
+        UPSTOX_URL: ${{ secrets.UPSTOX_URL }}
+        UPSTOX_MOB_NO: ${{ secrets.UPSTOX_MOB_NO }}
+        UPSTOX_CLIENT_PASS: ${{ secrets.UPSTOX_CLIENT_PASS }}
+        UPSTOX_CLIENT_PIN: ${{ secrets.UPSTOX_CLIENT_PIN }}
+      run: python3 main.py
+    - name: Configure git
+      run: |
+        git config --local user.name "github-actions[bot]"
+        git config --local user.email "action@github.com"
+
+    - name: Commit and Push Changes
+      run: |
+        git add *.csv  # Add only CSV files
+        git status  # Show added files
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Update CSV state"
+          git pull --rebase  # Ensure we don't overwrite recent commits
+          git push
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
