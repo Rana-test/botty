@@ -439,7 +439,8 @@ def exit_order(pos_df, api, order_type, live=False):
             trigger_price = None
             retention='DAY'
             buy_sell = 'S' if netqty>0 else 'B'
-            place_order(api, live, trading_symbol, buy_sell, abs(netqty), order_type)
+            status, return_msgs = place_order(api, live, trading_symbol, buy_sell, abs(netqty), order_type)
+            return status, return_msgs
 
 def get_strikes(upstox_opt_api, finvasia_api, instrument, expiry,trade_qty,upstox_instruments, delta, finvasia_user_id):
     SPAN_Expiry = datetime.strptime(expiry, "%Y-%m-%d").strftime("%d-%b-%Y").upper()
