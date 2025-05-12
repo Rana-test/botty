@@ -85,7 +85,7 @@ def run_hourly_trading_strategy(
         exit_confirm=0
     #Debugging
     # exit_confirm=3
-    if exit_confirm>2 and has_open_order:
+    if exit_confirm>0 and has_open_order:
         logger.info("Exit condition met. Preparing to exit trades.")
         # Implement exit logic
         exit_confirm = 0
@@ -137,7 +137,7 @@ def run_hourly_trading_strategy(
 
     #Debugging
     # entry_confirm=3
-    if abs(entry_confirm) > 2:
+    if abs(entry_confirm) > 1:
         logger.info("Entry condition met. Preparing to place order.")
         entry_confirm = 0  
         action = 'MAKE ENTRY'
