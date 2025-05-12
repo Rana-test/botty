@@ -42,7 +42,7 @@ def calculate_total_pnl(df):
     total_pnl = sum(pnl_by_symbol.values())
     return total_pnl
 
-def write_to_trade_book(api, trade_csv="bot/trade_book.csv"):
+def write_to_trade_book(api, trade_csv="trade_book.csv"):
     """Fetch and update trade book records from the API."""
     cols = ['trantype', 'tsym', 'order_type', 'qty', 'fillshares', 'flqty', 'flprc', 'avgprc', 'exch_tm', 'remarks', 'exchordid']
     df_existing = pd.read_csv(trade_csv, dtype=str) if os.path.exists(trade_csv) else pd.DataFrame(columns=cols)

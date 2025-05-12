@@ -34,7 +34,7 @@ def main():
     # Load APIs and configurations
     finvasia_api, upstox_opt_api, upstox_charge_api, upstox_instruments, session_vars_df, trade_book, email_client,finvasia_user_id = load_credentials_and_apis()
 
-    write_to_trade_book(finvasia_api, trade_csv="bot/trade_book.csv")
+    write_to_trade_book(finvasia_api, trade_csv="trade_book.csv")
     logger.info("Trade book updated.")
 
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
@@ -95,7 +95,7 @@ def main():
     # Removing Chandlier_exit_tv
     # sess_var_df.loc[sess_var_df['session_var']=='ce_short','value']=ce_short
     # sess_var_df.loc[sess_var_df['session_var']=='ce_long','value']=ce_long
-    session_vars_df.to_csv('bot/session_var.csv', index=False)
+    session_vars_df.to_csv('session_var.csv', index=False)
     write_to_trade_book(finvasia_api)
     finvasia_api.logout()
 
