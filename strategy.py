@@ -278,8 +278,8 @@ def monitor_trade(finvasia_api, upstox_opt_api):
 
         day_exit_pct = sigmoid_exit_percent(days_to_expiry) / 100
         exit_condition = (
-            current_index_price < lower_breakeven or
-            current_index_price > upper_breakeven or
+            #current_index_price < lower_breakeven or
+            #current_index_price > upper_breakeven or
             current_pnl < max_loss or
             current_pnl > day_exit_pct * max_profit
         )
