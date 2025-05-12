@@ -281,8 +281,8 @@ def monitor_trade(finvasia_api, upstox_opt_api):
 
         day_exit_pct = sigmoid_exit_percent(days_to_expiry) / 100
         exit_condition = (
-            #current_index_price < lower_breakeven or
-            #current_index_price > upper_breakeven or
+            current_index_price < lower_breakeven or
+            current_index_price > upper_breakeven or
             current_pnl < max_loss or
             current_pnl > day_exit_pct * max_profit
         )
@@ -292,7 +292,17 @@ def monitor_trade(finvasia_api, upstox_opt_api):
         #Debugging
         # exit_condition=True
         if exit_condition:
-            exit_order(group, finvasia_api, order_type= order_type, live=True)
+            logging.info(f"Exit condition met for {expiry_date_str}. Current PnL: {current_pnl}")
+            if current_index_price < lower_breakeven:
+                logging.info(f"Exit Condition -- Current Index Price: {current_index_price} < Lower Breakeven: {lower_breakeven}")
+            if current_index_price > upper_breakeven:
+                logging.info(f"Exit Condition -- Current Index Price: {current_index_price} > Upper Breakeven: {upper_breakeven}")
+            if current_pnl < max_loss:
+                logging.info(f"Exit Condition -- Current PnL: {current_pnl} < Max Loss: {max_loss}")
+            if current_pnl > day_exit_pct * max_profit:
+                logging.info(f"Exit Condition -- Current PnL: {current_pnl} > Day Exit Pct {day_exit_pct} * max_profit: {max_profit}")
+
+            status, return_msgs = exit_order(group, finvasia_api, order_type= order_type, live=True)
             write_to_trade_book(finvasia_api)
             breakeven_info = {
                 "Lower_Breakeven": order_type,
@@ -329,5 +339,4 @@ def monitor_trade(finvasia_api, upstox_opt_api):
         "Total_PNL": round(total_pnl, 2),
         "Expiry_Details": expiry_metrics
     }
-    return metrics
-
+    return metrics, return_msgs

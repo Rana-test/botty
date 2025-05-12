@@ -52,7 +52,10 @@ def main():
     counter=0
     while is_within_timeframe(session.get('start_time'), session.get('end_time')):
         logging.info(f"Monitoring Trade")
-        metrics = monitor_trade(finvasia_api, upstox_opt_api)
+        metrics, return_msgs = monitor_trade(finvasia_api, upstox_opt_api)
+        if len(return_msgs)>0:
+            for msg in return_msgs:
+                email_client.send_email_plain(msg['subject'], msg['body'])
         if metrics =="STOP_LOSS":
             email_client.send_email_plain("STOP LOSS HIT - QUIT", "STOP LOSS HIT")
         else:
