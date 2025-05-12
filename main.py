@@ -95,9 +95,6 @@ def main():
     logging.info(f"Saving session variables")
     session_vars_df.loc[session_vars_df['session_var']=='exit_confirm','value']=exit_confirm
     session_vars_df.loc[session_vars_df['session_var']=='entry_confirm','value']=entry_confirm
-    # Removing Chandlier_exit_tv
-    # sess_var_df.loc[sess_var_df['session_var']=='ce_short','value']=ce_short
-    # sess_var_df.loc[sess_var_df['session_var']=='ce_long','value']=ce_long
     session_vars_df.to_csv('session_var.csv', index=False)
     write_to_trade_book(finvasia_api)
     finvasia_api.logout()
