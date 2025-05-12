@@ -238,6 +238,9 @@ def monitor_trade(finvasia_api, upstox_opt_api):
     expiry_metrics = {}
 
     for expiry, group in pos_df.groupby("expiry"):
+        group = group[group['netqty'] != 0]
+        if group.empty:
+            continue
         expiry_date_str = expiry.strftime('%Y-%m-%d')
         atm_iv = get_atm_iv(upstox_opt_api, expiry_date_str, current_index_price)
         days_to_expiry = int(group['Days_to_Expiry'].mean())
