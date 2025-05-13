@@ -50,7 +50,7 @@ def run_hourly_trading_strategy(
     # Determine position size
     entry_trade_qty = fixed_ratio_position_size(pos_base_lots, pos_delta, total_pnl) * 75
 
-    logger.info("Running STEMA Strategy")
+    # logger.info("Running STEMA Strategy")
     instrument = "NSE_INDEX|Nifty 50"
     action = 'NO ACTION'
 
@@ -229,7 +229,7 @@ def run_hourly_trading_strategy(
 
 def monitor_trade(finvasia_api, upstox_opt_api):
     return_msgs=[]
-    logging.info("Getting positions")
+    # logging.info("Getting positions")
     pos_df = get_positions(finvasia_api)
     if pos_df is None:
         return {'get_pos Error': "Error getting position Info"}
