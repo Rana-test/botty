@@ -127,13 +127,13 @@ def run_hourly_trading_strategy(
         entry_confirm=0
 
     # Do not place order if recent PE/CE stop loss order exists in past 3 hours to avoid whipsaw
-    has_pe, has_ce = check_recent_pe_ce(trade_book_df, time_window_minutes=180)
-    if has_pe and entry_signal == -1:
-        entry_confirm = 0
-        logger.info("Recent PE order exists. Skipping entry.")
-    elif has_ce and entry_signal == 1:
-        entry_confirm = 0
-        logger.info("Recent CE order exists. Skipping entry.")
+    # has_pe, has_ce = check_recent_pe_ce(trade_book_df, time_window_minutes=180)
+    # if has_pe and entry_signal == -1:
+    #     entry_confirm = 0
+    #     logger.info("Recent PE order exists. Skipping entry.")
+    # elif has_ce and entry_signal == 1:
+    #     entry_confirm = 0
+    #     logger.info("Recent CE order exists. Skipping entry.")
 
     #Debugging
     # entry_confirm=3
