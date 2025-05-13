@@ -228,6 +228,7 @@ def run_hourly_trading_strategy(
     return return_msgs, entry_confirm, exit_confirm
 
 def monitor_trade(finvasia_api, upstox_opt_api):
+    return_msgs=[]
     logging.info("Getting positions")
     pos_df = get_positions(finvasia_api)
     if pos_df is None:
@@ -302,7 +303,8 @@ def monitor_trade(finvasia_api, upstox_opt_api):
             if current_pnl > day_exit_pct * max_profit:
                 logging.info(f"Exit Condition -- Current PnL: {current_pnl} > Day Exit Pct {day_exit_pct} * max_profit: {max_profit}")
 
-            status, return_msgs = exit_order(group, finvasia_api, order_type= order_type, live=True)
+            status, msgs = exit_order(group, finvasia_api, order_type= order_type, live=True)
+            return_msgs += msgs
             write_to_trade_book(finvasia_api)
             breakeven_info = {
                 "Lower_Breakeven": order_type,
