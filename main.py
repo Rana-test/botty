@@ -35,10 +35,10 @@ def main():
     finvasia_api, upstox_opt_api, upstox_charge_api, upstox_instruments, session_vars_df, trade_book, email_client,finvasia_user_id = load_credentials_and_apis()
 
     write_to_trade_book(finvasia_api, trade_csv="trade_book.csv")
-    logger.info("Trade book updated.")
+    # logger.info("Trade book updated.")
 
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    logger.info(f"Running strategy at: {now}")
+    # logger.info(f"Running strategy at: {now}")
 
     # Define confirmation triggers (could be dynamic)
     exit_confirm = session_vars_df[session_vars_df['session_var'] == 'exit_confirm']['value'].iloc[0]
