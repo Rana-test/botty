@@ -303,7 +303,7 @@ def monitor_trade(finvasia_api, upstox_opt_api):
             if current_pnl > day_exit_pct * max_profit:
                 logging.info(f"Exit Condition -- Current PnL: {current_pnl} > Day Exit Pct {day_exit_pct} * max_profit: {max_profit}")
 
-            status, msgs = exit_order(group, finvasia_api, order_type= order_type, live=True)
+            msgs = exit_order(group, finvasia_api, order_type= order_type, live=True)
             return_msgs += msgs
             write_to_trade_book(finvasia_api)
             breakeven_info = {

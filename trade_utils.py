@@ -422,6 +422,7 @@ def sigmoid_exit_percent(dte, k=0.7):
         return 65 +  70/ (1 + math.exp(k * dte))
     
 def exit_order(pos_df, api, order_type, live=False):
+    return_msgs=[]
     for i,pos in pos_df.iterrows():
         # Exit only the loss making side
         # if pos["PnL"] < 1: 
@@ -439,8 +440,9 @@ def exit_order(pos_df, api, order_type, live=False):
             trigger_price = None
             retention='DAY'
             buy_sell = 'S' if netqty>0 else 'B'
-            status, return_msgs = place_order(api, live, trading_symbol, buy_sell, abs(netqty), order_type)
-            return status, return_msgs
+            status, return_msg = place_order(api, live, trading_symbol, buy_sell, abs(netqty), order_type)
+            return_msgs+= return_msg
+    return return_msgs
 
 def get_strikes(upstox_opt_api, finvasia_api, instrument, expiry,trade_qty,upstox_instruments, delta, finvasia_user_id):
     SPAN_Expiry = datetime.strptime(expiry, "%Y-%m-%d").strftime("%d-%b-%Y").upper()

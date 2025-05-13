@@ -51,7 +51,7 @@ def main():
     # Start Monitoring
     counter=0
     while is_within_timeframe(session.get('start_time'), session.get('end_time')):
-        logging.info(f"Monitoring Trade @ {datetime.now(ZoneInfo("Asia/Kolkata"))}")
+        logging.info(f"Monitoring Trade @ {datetime.now(ZoneInfo('Asia/Kolkata'))}")
         metrics, return_msgs = monitor_trade(finvasia_api, upstox_opt_api)
         if len(return_msgs)>0:
             for msg in return_msgs:
