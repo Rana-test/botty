@@ -3,3 +3,4 @@ creds.yml
 __pycache__/
 test.ipynb
 Cum_PNL_local.ipynb
+.~lock.trade_book.csv#
