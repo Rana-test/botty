@@ -232,7 +232,7 @@ def monitor_trade(finvasia_api, upstox_opt_api):
     # logging.info("Getting positions")
     pos_df = get_positions(finvasia_api)
     if pos_df is None:
-        return {'get_pos Error': "Error getting position Info"}
+        return {'get_pos Error': "Error getting position Info"}, []
 
     current_index_price = float(finvasia_api.get_quotes(exchange="NSE", token="26000")['lp'])
     total_pnl = 0
