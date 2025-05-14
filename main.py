@@ -46,7 +46,6 @@ def main():
     logging.info(f"Loaded session variables: {session_vars_df}")
     # Wait till 9:15
     while is_within_timeframe("08:30", "09:15"):
-        logging.info("Waiting for market to open...")
         sleep_time.sleep(60)
     # Start Monitoring
     counter=0
