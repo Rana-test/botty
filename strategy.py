@@ -42,7 +42,7 @@ def run_hourly_trading_strategy(
     Runs the hourly trading strategy using Supertrend and RSI.
     """
     return_msgs = []
-
+    open_orders = None
     # Retrieve PnL
     trade_book_df, total_pnl = write_to_trade_book(finvasia_api)
     logger.info(f"Trade Book PnL: {total_pnl}")
