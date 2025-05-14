@@ -243,7 +243,11 @@ def monitor_trade(finvasia_api, upstox_opt_api):
         if group.empty:
             continue
         expiry_date_str = expiry.strftime('%Y-%m-%d')
-        atm_iv = get_atm_iv(upstox_opt_api, expiry_date_str, current_index_price)
+        try:
+            atm_iv = get_atm_iv(upstox_opt_api, expiry_date_str, current_index_price)
+        except Exception as e:
+            logging.error(f"Error getting ATM IV: {e}")
+            atm_iv=15
         days_to_expiry = int(group['Days_to_Expiry'].mean())
         expected_move = calc_expected_move(current_index_price, atm_iv, days_to_expiry)
 
