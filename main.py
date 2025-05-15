@@ -69,6 +69,7 @@ def main():
                 stema_min_df = get_minute_data(finvasia_api,now=None)
                 logging.info(f"Got historical data")
                 # Run strategy
+                now = datetime.now(ZoneInfo("Asia/Kolkata"))
                 return_msgs, entry_confirm, exit_confirm = run_hourly_trading_strategy(
                     live=True,
                     finvasia_api=finvasia_api,
