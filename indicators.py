@@ -17,7 +17,7 @@ def calculate_rsi_wilder(close_prices, period=14):
     return rsi
 
 
-def calculate_supertrend(df_minute, atr_period=10, multiplier=3.5):
+def calculate_supertrend(df_minute, atr_period=10, multiplier=4):
     """
     Calculates Supertrend based on given ATR period and multiplier.
     Returns DataFrame with trend and entry/exit signals.
