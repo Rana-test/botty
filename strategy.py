@@ -89,7 +89,7 @@ def run_hourly_trading_strategy(
     logging.info(f"Entry Signal: {entry_signal}, Exit Signal:{exit_signal}")
     # Check if open order for Put exists and trend is -1 then trend changed
     logging.info(f"Checking rsi confirm with trend")
-    rsi_exit_confirm =  (latest_trend ==1 and rsi>45) or (latest_trend == -1 and rsi<55)
+    rsi_exit_confirm =  (latest_trend ==1 and rsi>49) or (latest_trend == -1 and rsi<51)
     # Exit open orders if trend changes
     if abs(exit_signal)>0 and has_open_order and rsi_exit_confirm:
         exit_confirm+=exit_signal
