@@ -72,11 +72,23 @@ def run_hourly_trading_strategy(
     else:
         open_orders = pos[pos['netqty'].astype(int)!=0]
         has_open_order = not open_orders.empty
+
+    #Verify exit based on open orders and trend
+    if has_open_order:
+        logging.info(f"Checking trend change for open orders")
+        open_order_type= open_orders['dname'].apply(lambda x: x.split()[-1]).unique().item()
+        # if trend is -1 and has PE open orders then exit
+        if latest_trend == -1 and open_order_type == 'PE':
+            exit_signal = 1
+        # if trend is 1 and has CE open orders then exit
+        if latest_trend == 1 and open_order_type == 'CE':
+            exit_signal = 1
+
     logging.info(f"has_open_order: {has_open_order}")
     logging.info(f"Current Trend: {latest_trend}")
     logging.info(f"Entry Signal: {entry_signal}, Exit Signal:{exit_signal}")
     # Check if open order for Put exists and trend is -1 then trend changed
-    logging.info(f"Checking trend change for open orders")
+    logging.info(f"Checking rsi confirm with trend")
     rsi_exit_confirm =  (latest_trend ==1 and rsi>50) or (latest_trend == -1 and rsi<50)
     # Exit open orders if trend changes
     if abs(exit_signal)>0 and has_open_order and rsi_exit_confirm:

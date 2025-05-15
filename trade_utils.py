@@ -168,7 +168,7 @@ def exit_trade(finvasia_api, exit_orders, live=True):
 
 def place_order(api, live, trading_symbol, buy_sell, qty, order_type):
     logging.info(f"Within place order")
-    quantity = abs(qty)
+    quantity = str(abs(int(qty)))
     tradingsymbol= trading_symbol
     prd_type = 'M'
     exchange = 'NFO' 

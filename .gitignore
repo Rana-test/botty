@@ -4,3 +4,6 @@ __pycache__/
 test.ipynb
 Cum_PNL_local.ipynb
 .~lock.trade_book.csv#
+trade_utils.py
+hourly_data copy.csv
+.~lock.hourly_data.csv#

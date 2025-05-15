@@ -23,6 +23,8 @@ def calculate_supertrend(df_minute, atr_period=10, multiplier=3.5):
     Returns DataFrame with trend and entry/exit signals.
     """
     df = df_minute.copy()
+    # Debug
+    df_minute.to_csv('minute_data.csv', index=False)
     df['time'] = pd.to_datetime(df['time'])
     df.set_index('time', inplace=True)
     ############################## START HOURLY #################
@@ -118,5 +120,7 @@ def calculate_supertrend(df_minute, atr_period=10, multiplier=3.5):
         (df_hourly['trend'] != df_hourly['trend'].shift(1)),
           'exit_signal'
           ] = 1
+    #Debug
+    df_hourly.to_csv('hourly_data.csv', index=False)
 
     return df_hourly
