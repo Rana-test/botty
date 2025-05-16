@@ -239,7 +239,7 @@ def run_hourly_trading_strategy(
 
     return return_msgs, entry_confirm, exit_confirm
 
-def monitor_trade(finvasia_api, upstox_opt_api):
+def monitor_trade(finvasia_api, upstox_opt_api, entry_confirm):
     return_msgs=[]
     # logging.info("Getting positions")
     pos_df = get_positions(finvasia_api)
@@ -296,7 +296,12 @@ def monitor_trade(finvasia_api, upstox_opt_api):
         stop_loss_per = float(group['exit_loss_per'].mean())
         max_loss = -stop_loss_per * max_profit
 
-        day_exit_pct = sigmoid_exit_percent(days_to_expiry) / 100
+        # Don't exit early unless there is an entry to be made
+        if int(entry_confirm) ==0:
+            day_exit_pct = 1
+        else:
+            day_exit_pct = sigmoid_exit_percent(days_to_expiry) / 100
+
         exit_condition = (
             current_index_price < lower_breakeven or
             current_index_price > upper_breakeven or
