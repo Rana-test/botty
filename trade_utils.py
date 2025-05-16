@@ -57,6 +57,51 @@ def write_to_trade_book(api, trade_csv="trade_book.csv"):
         if not exists:
             df_existing = pd.concat([df_existing, new_rec_df], ignore_index=True)
             df_existing.to_csv(trade_csv, index=False, float_format="%.2f")
+    
+    # Update trade book if expiry date is in the past
+    # Convert exchange time to datetime
+    df_existing['exch_tm'] = pd.to_datetime(df_existing['exch_tm'], format='%d-%m-%Y %H:%M:%S')
+    # Step 1: Extract expiry from tsym (e.g., '08MAY25' from 'NIFTY08MAY25P24200')
+    def extract_expiry(tsym):
+        try:
+            date_str = tsym[6:13]
+            return pd.to_datetime(date_str, format='%d%b%y')
+        except:
+            return pd.NaT
+    df_existing['expiry'] = df_existing['tsym'].apply(extract_expiry)
+    # Step 2: Filter for expired contracts
+    today = pd.Timestamp.today().normalize()
+    expired_df = df_existing[df_existing['expiry'] < today]
+    # Step 3: Group by symbol and find quantity mismatches
+    grouped = expired_df.groupby(['tsym', 'trantype'])['flqty'].sum().unstack(fill_value=0)
+
+    # Step 4: Identify mismatches
+    mismatch_rows = []
+    for tsym, row in grouped.iterrows():
+        buy_qty = row.get('B', 0)
+        sell_qty = row.get('S', 0)
+        if buy_qty != sell_qty:
+            missing_type = 'B' if sell_qty > buy_qty else 'S'
+            missing_qty = abs(sell_qty - buy_qty)
+            mismatch_row = {
+                'trantype': missing_type,
+                'tsym': tsym,
+                'order_type': tsym[-2:],  # get 'PE' or 'CE' from symbol
+                'qty': missing_qty,
+                'fillshares': missing_qty,
+                'flqty': missing_qty,
+                'flprc': 0.05,
+                'avgprc': 0.05,
+                'exch_tm': datetime.now(),
+                'remarks': 'Mismatch',
+                'exchordid': 'mismatchordid',
+            }
+            mismatch_rows.append(mismatch_row)
+
+    # Step 5: Append mismatches
+    if mismatch_rows:
+        mismatch_df = pd.DataFrame(mismatch_rows)
+        df_existing = pd.concat([df_existing, mismatch_df], ignore_index=True)
 
     total_pnl = calculate_total_pnl(df_existing)
     return df_existing, total_pnl
