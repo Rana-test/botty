@@ -51,7 +51,7 @@ def main():
     counter=0
     while is_within_timeframe(session.get('start_time'), session.get('end_time')):
         logging.info(f"Monitoring Trade @ {datetime.now(ZoneInfo('Asia/Kolkata'))}")
-        metrics, return_msgs = monitor_trade(finvasia_api, upstox_opt_api)
+        metrics, return_msgs = monitor_trade(finvasia_api, upstox_opt_api, entry_confirm)
         if len(return_msgs)>0:
             for msg in return_msgs:
                 email_client.send_email_plain(msg['subject'], msg['body'])

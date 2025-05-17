@@ -76,7 +76,7 @@ def run_hourly_trading_strategy(
     #Verify exit based on open orders and trend
     if has_open_order:
         logging.info(f"Checking trend change for open orders")
-        open_order_type= open_orders['dname'].apply(lambda x: x.split()[-1]).unique().item()
+        open_order_type= open_orders['tsym'].apply(lambda x: 'PE' if 'P' in x[-6:] else 'CE').unique().item()
         # if trend is -1 and has PE open orders then exit
         if latest_trend == -1 and open_order_type == 'PE':
             exit_signal = 1
