@@ -121,6 +121,6 @@ def calculate_supertrend(df_minute, atr_period=10, multiplier=4):
           'exit_signal'
           ] = 1
     #Debug
-    df_hourly.to_csv('hourly_data.csv', index=False)
+    df_hourly.to_csv('hourly_data.csv')
 
     return df_hourly
