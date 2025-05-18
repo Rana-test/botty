@@ -17,7 +17,7 @@ from trade_utils import (
 )
 from indicators import calculate_supertrend
 import pandas as pd
-from trade_utils import get_target_thursday, holiday_dict
+from trade_utils import get_target_thursday, holiday_dict, get_next_week_thursday
 import time as sleep_time
 
 logger = logging.getLogger(__name__)
@@ -46,9 +46,6 @@ def run_hourly_trading_strategy(
     # Retrieve PnL
     trade_book_df, total_pnl = write_to_trade_book(finvasia_api)
     logger.info(f"Trade Book PnL: {total_pnl}")
-
-    # Determine position size
-    entry_trade_qty = fixed_ratio_position_size(pos_base_lots, pos_delta, total_pnl) * 75
 
     # logger.info("Running STEMA Strategy")
     instrument = "NSE_INDEX|Nifty 50"
@@ -147,31 +144,33 @@ def run_hourly_trading_strategy(
     #     entry_confirm = 0
     #     logger.info("Recent CE order exists. Skipping entry.")
 
-    #Debugging
-    # entry_confirm=3
+    # Debugging
+    # entry_confirm=2
     if abs(entry_confirm) > 1:
         logger.info("Entry condition met. Preparing to place order.")
         entry_confirm = 0  
+
         action = 'MAKE ENTRY'
         order_type = 'CE' if entry_signal == 1 else 'PE'
 
         # Determine expiry, adjust for holidays
-        expiry = get_target_thursday()
+        # expiry = get_target_thursday()
+        # expiry = holiday_dict.get(expiry, expiry)
+        # logging.info(f"Calculated Expiry: {expiry}")
+
+        expiry = get_next_week_thursday()
         expiry = holiday_dict.get(expiry, expiry)
         logging.info(f"Calculated Expiry: {expiry}")
 
+
         today = pd.Timestamp(datetime.now(ZoneInfo("Asia/Kolkata")).date())
 
-        # Get margin and collateral limits
-        limits = finvasia_api.get_limits()
-        min_coll = min(
-            float(limits['cash']) + float(limits.get('cash_coll',0)) + float(limits['payin']) - float(limits['payout']) - float(limits.get('marginused', 0))/2,
-            float(limits.get('collateral',0)) - float(limits.get('marginused', 0))/2
-        )
-
         # Determine legs based on order type
-        main_leg = get_strikes(upstox_opt_api, finvasia_api, instrument, expiry, entry_trade_qty, upstox_instruments, 0.25, finvasia_user_id)
-        hedge_leg = get_strikes(upstox_opt_api, finvasia_api, instrument, expiry, entry_trade_qty, upstox_instruments, 0.17, finvasia_user_id)
+        temp_entry_trade_qty = 75
+        main_delta = 0.4
+        hedge_delta = 0.25
+        main_leg = get_strikes(upstox_opt_api, finvasia_api, instrument, expiry, temp_entry_trade_qty, upstox_instruments, main_delta, finvasia_user_id)
+        hedge_leg = get_strikes(upstox_opt_api, finvasia_api, instrument, expiry, temp_entry_trade_qty, upstox_instruments, hedge_delta, finvasia_user_id)
 
         symbol_key = 'pe' if order_type == 'PE' else 'ce'
         main_key = f"fin_{symbol_key}_symbol"
@@ -184,14 +183,14 @@ def run_hourly_trading_strategy(
                 'trading_symbol': main_leg[main_key],
                 'trading_up_symbol': main_leg[up_main_key],
                 'order_action': 'S',
-                'order_qty': str(entry_trade_qty),
+                'order_qty': str(temp_entry_trade_qty),
                 'order_type': order_type
             },
             'Hedge': {
                 'trading_symbol': hedge_leg[hedge_key],
                 'trading_up_symbol': hedge_leg[up_hedge_key],
                 'order_action': 'B',
-                'order_qty': str(entry_trade_qty),
+                'order_qty': str(temp_entry_trade_qty),
                 'order_type': order_type
             }
         }
@@ -199,10 +198,37 @@ def run_hourly_trading_strategy(
         logging.info(f"Main Leg: {orders['Main']['trading_symbol']}")
         logging.info(f"Hedge Leg: {orders['Hedge']['trading_symbol']}")
 
-        orders = get_revised_qty_margin(orders, upstox_charge_api, min_coll)
-        base_lots = int(orders['Main']['order_qty']) // (75 * put_neg_bias)
-        orders['Main']['order_qty'] = 75 * base_lots
-        orders['Hedge']['order_qty'] = 75 * base_lots
+        # Get margin and collateral limits
+        limits = finvasia_api.get_limits()
+        # min_coll = min(
+        #     float(limits['cash']) + float(limits.get('cash_coll',0)) + float(limits['payin']) - float(limits['payout']) - float(limits.get('marginused', 0))/2,
+        #     float(limits.get('collateral',0)) - float(limits.get('marginused', 0))/2
+        # )
+        usable_cash = (
+            float(limits.get('cash', 0)) +
+            float(limits.get('cash_coll', 0)) +
+            float(limits.get('payin', 0)) -
+            float(limits.get('payout', 0)) -
+            float(limits.get('marginused', 0)) / 2
+        )
+
+        usable_collateral = (
+            float(limits.get('collateral', 0)) -
+            float(limits.get('marginused', 0)) / 2
+        )
+
+        max_margin_available = 2 * min(usable_cash, usable_collateral)
+
+        orders, pos_delta, max_qty = get_revised_qty_margin(orders, upstox_charge_api, max_margin_available)
+        # Position Sizing
+        pos_base_lots = 7
+        max_sizing_qty = fixed_ratio_position_size(pos_base_lots, pos_delta, total_pnl) * 75
+
+        entry_trade_qty= min(max_qty,max_sizing_qty)
+        
+        # base_lots = int(orders['Main']['order_qty']) // (75 * put_neg_bias)
+        orders['Main']['order_qty'] = entry_trade_qty
+        orders['Hedge']['order_qty'] = entry_trade_qty
 
         for leg in ['Hedge', 'Main']:
             order = orders[leg]

@@ -6,8 +6,9 @@ Cum_PNL_local.ipynb
 .~lock.trade_book.csv#
 trade_utils.py
 hourly_data copy.csv
-.~lock.hourly_data.csv#
+.~lock.*
 fut_df.csv
 hourly_data_300d_st10_3.5.csv
 hourly_data_300d_st10_4.csv
 simulator.py
+results/stema/

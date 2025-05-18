@@ -297,6 +297,22 @@ def find_last_thursday(year, month):
         last_day -= timedelta(days=1)
     return last_day.day
 
+def get_next_week_thursday(today=None):
+    if today is None:
+        today = datetime.now(ZoneInfo('Asia/Kolkata'))
+    
+    # Find start of current week (Monday)
+    start_of_week = today - timedelta(days=today.weekday())
+    
+    # Start of next week
+    start_of_next_week = start_of_week + timedelta(days=7)
+    
+    # Next week's Thursday
+    next_week_thursday = start_of_next_week + timedelta(days=3)
+    
+    return next_week_thursday.strftime("%Y-%m-%d")
+
+
 def convert_option_symbol(input_symbol):
     # Ensure input is valid
     if not isinstance(input_symbol, str) or len(input_symbol) < 12:
@@ -408,7 +424,7 @@ def get_positions(api):
     except Exception as e:
         return None
 
-def get_revised_qty_margin(orders, upstox_charge_api, min_coll):
+def get_revised_qty_margin(orders, upstox_charge_api, max_margin_available):
     main_leg = orders['Main'] #={'trading_symbol':main_leg['fin_pe_symbol'], , 'trading_up_symbol':main_leg['upstox_pe_instrument_key'], 'order_action':'S', 'order_qty':str(trade_qty), 'order_type':'PUT'}
     hedge_leg = orders['Hedge'] #={'trading_symbol':hedge_leg['fin_pe_symbol'], , 'trading_up_symbol':main_leg['upstox_pe_instrument_key'], 'order_action':'B', 'order_qty':str(trade_qty), 'order_type':'PUT'}
     instruments = [
@@ -430,14 +446,16 @@ def get_revised_qty_margin(orders, upstox_charge_api, min_coll):
     margin_request = {"instruments": instruments}
     api_response = upstox_charge_api.post_margin(margin_request)
     final_margin = float(api_response.data.final_margin)
-    if min_coll>final_margin:
-        return orders
+    if max_margin_available<final_margin:
+        orders['Main']['order_qty']=0
+        orders['Hedge']['order_qty']=0
+        return orders, 99999999, 0
     else:
         margin_per_lot = 75*final_margin/float(main_leg['order_qty'])
-        lots = max(0,min_coll//margin_per_lot)
+        lots = max(0,max_margin_available//margin_per_lot)
         orders['Main']['order_qty']=lots*75
         orders['Hedge']['order_qty']=lots*75
-        return orders
+        return orders, margin_per_lot, lots*75
 
 def get_atm_iv(upstox_opt_api, expiry_date, current_index_price):
     strike_interval = 50
