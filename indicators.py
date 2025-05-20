@@ -24,27 +24,17 @@ def calculate_supertrend(df_minute, atr_period=10, multiplier=4):
     """
     df = df_minute.copy()
     # Debug
-    df_minute.to_csv('minute_data.csv', index=False)
+    # df_minute.to_csv('minute_data.csv', index=False)
     df['time'] = pd.to_datetime(df['time'])
     df.set_index('time', inplace=True)
-    ############################## START HOURLY #################
-    # # Aggregate to hourly candles
-    # df_hourly = df.resample('1h', label='right', closed='right').agg({
-    #     'open': 'first',
-    #     'high': 'max',
-    #     'low': 'min',
-    #     'close': 'last',
-    #     # 'volume': 'sum'
-    # }).dropna()
 
-    ########################## END HOURLY #####################
-    ########################## START MIN #####################
     # Sort descending (latest to earliest)
     df = df.sort_index(ascending=False)
 
-    df['minutes_from_latest'] = ((df.index[0] - df.index).total_seconds() // 60).astype(int)
+    df['minutes_from_latest'] = (((df.index[0] - df.index).total_seconds()+1) // 60).astype(int)
     df['reverse_hour_bin'] = (df['minutes_from_latest'] // 60).astype(int)
-
+    df.to_csv('minute_data.csv')
+    # Since minute date is descending
     ohlc_agg = {
         'open': 'last',
         'high': 'max',
@@ -63,7 +53,8 @@ def calculate_supertrend(df_minute, atr_period=10, multiplier=4):
         (df_hourly['low'] - df_hourly['close'].shift(1)).abs()
     ], axis=1).max(axis=1)
 
-    df_hourly['atr'] = df_hourly['tr'].ewm(alpha=1/atr_period, adjust=False).mean()
+    # df_hourly['atr'] = df_hourly['tr'].ewm(alpha=1/atr_period, adjust=True).mean()
+    df_hourly['atr'] = df_hourly['tr'].rolling(window=atr_period, min_periods=atr_period).mean().round(4)
 
     up_list, dn_list, trend_list = [np.nan]*len(df_hourly), [np.nan]*len(df_hourly), [np.nan]*len(df_hourly)
 
