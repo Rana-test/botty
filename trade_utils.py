@@ -200,8 +200,9 @@ def exit_trade(finvasia_api, exit_orders, live=True):
         order_tsm = order['tsym']
         # order_type = order['dname'].split()[-1]
         # # ord_qty = min(abs(int(curr_pos[curr_pos['tsym']==order_tsm]['netqty'].iloc[0])),order['order_qty'])
-        qty = abs(int(order['netqty']))
+        qty = int(order['netqty'])
         ord_act = 'S' if qty > 0 else 'B'
+        qty = abs(qty)
         logging.info(f"Closing {order['order_type']} order {order_tsm}: {order}")
         # Get the current qty as per exisitng position and limit qty to that 
         ret_status, ret_msg = place_order(finvasia_api, live, order_tsm, ord_act, str(qty), 'EXIT STEMA')
