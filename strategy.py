@@ -221,7 +221,7 @@ def run_hourly_trading_strategy(
 
         orders, pos_delta, max_qty = get_revised_qty_margin(orders, upstox_charge_api, max_margin_available)
         # Position Sizing
-        pos_base_lots = 7
+        pos_base_lots = 10
         max_sizing_qty = fixed_ratio_position_size(pos_base_lots, pos_delta, total_pnl) * 75
 
         entry_trade_qty= min(max_qty,max_sizing_qty)
