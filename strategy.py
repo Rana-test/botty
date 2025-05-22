@@ -146,7 +146,7 @@ def run_hourly_trading_strategy(
 
     # Debugging
     # entry_confirm=2
-    if abs(entry_confirm) > 1:
+    if abs(entry_confirm) > 0:
         logger.info("Entry condition met. Preparing to place order.")
         entry_confirm = 0  
 
