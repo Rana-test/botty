@@ -65,7 +65,7 @@ def main():
                 metrics["INDIA_VIX"] = round(float(finvasia_api.get_quotes(exchange="NSE", token=str(26017))['lp']),2)
                 email_body = format_trade_metrics(metrics)
                 email_client.send_email_html(subject, email_body)
-            if counter % 15 ==0:
+            if counter % 10 ==0:
                 stema_min_df = get_minute_data(finvasia_api,now=None)
                 logging.info(f"Got historical data")
                 # Run strategy
