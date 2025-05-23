@@ -62,6 +62,9 @@ def run_hourly_trading_strategy(
     entry_signal = latest_signal['entry_signal']
     exit_signal = latest_signal['exit_signal']
     rsi = latest_signal['rsi']
+    ema20 = float(latest_signal['ema20'])
+    current_index_price = round(float(finvasia_api.get_quotes(exchange="NSE", token=str(26000))['lp']),2)
+    current_price_confirm = (latest_trend ==1 and current_index_price>ema20) or (latest_trend == -1 and current_index_price<ema20)
 
     pos = pd.DataFrame(finvasia_api.get_positions())
     if pos is None or pos.empty:
@@ -88,7 +91,7 @@ def run_hourly_trading_strategy(
     logging.info(f"Checking rsi confirm with trend")
     rsi_exit_confirm =  (latest_trend ==1 and rsi>49) or (latest_trend == -1 and rsi<51)
     # Exit open orders if trend changes
-    if abs(exit_signal)>0 and has_open_order and rsi_exit_confirm:
+    if abs(exit_signal)>0 and has_open_order and rsi_exit_confirm and current_price_confirm:
         exit_confirm+=exit_signal
     else:
         exit_confirm=0
@@ -130,7 +133,8 @@ def run_hourly_trading_strategy(
 
     # Place new order if no open orders and combined_signal is 1 or -1
     rsi_entry_confirm =  (latest_trend ==1 and rsi>52) or (latest_trend == -1 and rsi<48)
-    if not has_open_order and entry_signal != 0 and rsi_entry_confirm:
+    
+    if not has_open_order and entry_signal != 0 and rsi_entry_confirm and current_price_confirm:
         entry_confirm+=entry_signal
     else:
         entry_confirm=0
@@ -250,6 +254,7 @@ def run_hourly_trading_strategy(
     email_body = f"""
     Current Time: {latest_signal['time']}
     Current Close: {latest_signal['close']}
+    Current Index Price: {current_index_price}
     20 EMA: {latest_signal['ema20']}
     34 EMA: {latest_signal['ema34']}
     Trend: {latest_trend}
