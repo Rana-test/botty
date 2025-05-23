@@ -90,19 +90,19 @@ def calculate_supertrend(df_minute, atr_period=10, multiplier=4):
     df_hourly['entry_signal'] = 0
     df_hourly.loc[
         (df_hourly['close'] < df_hourly['ema20']) &
-        (df_hourly['close'] < df_hourly['ema34']) &
-        (df_hourly['ema20'] < df_hourly['ema34']) &
+        # (df_hourly['close'] < df_hourly['ema34']) &
+        # (df_hourly['ema20'] < df_hourly['ema34']) &
         (df_hourly['trend'] == -1) &
-        (df_hourly['rsi'] < 45),
+        (df_hourly['rsi'] < 48),
         'entry_signal'
     ] = 1
 
     df_hourly.loc[
         (df_hourly['close'] > df_hourly['ema20']) &
-        (df_hourly['close'] > df_hourly['ema34']) &
-        (df_hourly['ema20'] > df_hourly['ema34']) &
+        # (df_hourly['close'] > df_hourly['ema34']) &
+        # (df_hourly['ema20'] > df_hourly['ema34']) &
         (df_hourly['trend'] == 1) &
-        (df_hourly['rsi'] > 55),
+        (df_hourly['rsi'] > 52),
         'entry_signal'
     ] = -1
 

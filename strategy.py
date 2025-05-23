@@ -129,7 +129,7 @@ def run_hourly_trading_strategy(
                 has_open_order = not open_orders.empty
 
     # Place new order if no open orders and combined_signal is 1 or -1
-    rsi_entry_confirm =  (latest_trend ==1 and rsi>55) or (latest_trend == -1 and rsi<45)
+    rsi_entry_confirm =  (latest_trend ==1 and rsi>52) or (latest_trend == -1 and rsi<48)
     if not has_open_order and entry_signal != 0 and rsi_entry_confirm:
         entry_confirm+=entry_signal
     else:
