@@ -54,7 +54,11 @@ def main():
         metrics, return_msgs = monitor_trade(finvasia_api, upstox_opt_api, entry_confirm)
         if len(return_msgs)>0:
             for msg in return_msgs:
-                email_client.send_email_plain(msg['subject'], msg['body'])
+                try:
+                    email_client.send_email_plain(msg['subject'], msg['body'])
+                except Exception as e:
+                    logging.error(e)
+                    logging.info(return_msgs)
         if metrics =="STOP_LOSS":
             email_client.send_email_plain("STOP LOSS HIT - QUIT", "STOP LOSS HIT")
         else:
